@@ -134,8 +134,8 @@ class OSMCartographyNode(Node):
         return color
 
     def set_robot_position(self):
-        self.robot_x = 0.0
-        self.robot_y = 0.0 #for test
+        self.robot_x = 40.9428
+        self.robot_y = 472.869 #for test
 
     def publish_robot_transform(self):
         t = TransformStamped()
