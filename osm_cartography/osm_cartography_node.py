@@ -101,7 +101,6 @@ class OSMCartographyNode(Node):
                         points.append(Point(x=x, y=y, z=0.0))
                         self.get_logger().info(f'Added point: {x}, {y}')
 
-            points.append(Point(x=0.0, y=0.0, z=0.0))
             marker.points = points
 
             if points:  # Only add marker if it has points
