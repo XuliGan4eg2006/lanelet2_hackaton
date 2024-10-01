@@ -81,6 +81,7 @@ class OSMCartographyNode(Node):
             marker.type = Marker.LINE_STRIP
             marker.action = Marker.ADD
             marker.scale.x = 1.0  # Line width
+            marker.lifetime = self.get_clock().create_timer(100.0).to_msg()
 
             # Determine way type and set color
             way_type = self.determine_way_type(way)
@@ -104,8 +105,7 @@ class OSMCartographyNode(Node):
             if points:  # Only add marker if it has points
                 marker_array.markers.append(marker)
                 marker_id += 1
-        self.get_logger().info(str(marker_array.markers))
-        exit()
+
         self.marker_pub.publish(marker_array)
         self.get_logger().info(f'Published {len(marker_array.markers)} markers')
     def determine_way_type(self, way):
