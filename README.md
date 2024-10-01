@@ -12,6 +12,12 @@ source install/setup.bash
 ``
 <br>
 
+Setup Rviz:
+
+1. Set the fixed frame to "map"
+2. Add a MarkerArray display
+3. Set the topic to "/osm_markers"
+
 Run this shit:
 <br>
 <br>

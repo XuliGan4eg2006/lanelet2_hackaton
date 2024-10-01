@@ -72,7 +72,7 @@ class OSMCartographyNode(Node):
         marker_array = MarkerArray()
         marker_id = 0
 
-        # Process ways (roads, buildings, etc.)
+        # Process ways
         for way in self.root.findall('.//way'):
             marker = Marker()
             marker.header.frame_id = 'map'
@@ -92,19 +92,20 @@ class OSMCartographyNode(Node):
             for ref in node_refs:
                 node = self.root.find(f".//node[@id='{ref}']")
                 if node is not None:
-                    lat = float(node.find('.//tag[@k="local_x"]').attrib['v'])
-                    lon = float(node.find('.//tag[@k="local_y"]').attrib['v'])
+                    x = float(node.find('.//tag[@k="local_x"]').attrib['v'])
+                    y = float(node.find('.//tag[@k="local_y"]').attrib['v'])
                     # Convert to local coordinates (simplified)
-                    x = (lon - self.min_lon) * 111000  # Approximate meters
-                    y = (lat - self.min_lat) * 111000
+                    # x = (lon - self.min_lon) * 111000  # Approximate meters
+                    # y = (lat - self.min_lat) * 111000
                     points.append(Point(x=x, y=y, z=0.0))
+                    self.get_logger().info(f'Added point: {x}, {y}')
 
             marker.points = points
             if points:  # Only add marker if it has points
                 marker_array.markers.append(marker)
                 marker_id += 1
-        self.get_logger().info(f'Published {len(marker_array.markers)} markers')
         self.marker_pub.publish(marker_array)
+        self.get_logger().info(f'Published {len(marker_array.markers)} markers')
 
     def determine_way_type(self, way):
         return "thin_way"
