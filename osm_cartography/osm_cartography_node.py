@@ -53,18 +53,20 @@ class OSMCartographyNode(Node):
     def calculate_bounds(self):
         nodes = self.root.findall('.//node')
         for node in nodes:
-            print(node.find('.//tag[@k="local_x"]').attrib['v'])
 
-        # if nodes:
-        #     lats = [float(node.find('.//tag[@k="local_x"]').attrib['v']) for node in nodes]
-        #     lons = [float(node.find('.//tag[@k="local_y"]').attrib['v']) for node in nodes]
-        #     self.min_lat = min(lats)
-        #     self.max_lat = max(lats)
-        #     self.min_lon = min(lons)
-        #     self.max_lon = max(lons)
-        # else:
-        #     # Default values if no nodes found
-        #     self.min_lat = self.max_lat = self.min_lon = self.max_lon = 0.0
+            print(node.get("id") ,"---",node.find('.//tag[@k="local_x"]').attrib['v'])
+
+        # Calculate bounds
+        if nodes:
+            lats = [float(node.find('.//tag[@k="local_x"]').attrib['v']) for node in nodes]
+            lons = [float(node.find('.//tag[@k="local_y"]').attrib['v']) for node in nodes]
+            self.min_lat = min(lats)
+            self.max_lat = max(lats)
+            self.min_lon = min(lons)
+            self.max_lon = max(lons)
+        else:
+            # Default values if no nodes found
+            self.min_lat = self.max_lat = self.min_lon = self.max_lon = 0.0
 
     def publish_osm_data(self):
         if self.root is None:
@@ -93,7 +95,7 @@ class OSMCartographyNode(Node):
             for ref in node_refs:
                 node = self.root.find(f".//node[@id='{ref}']")
                 if node is not None:
-                    lat = float(node.get('lat'))
+                    lat = float(node.get('lat')) #!!!TODO!!!
                     lon = float(node.get('lon'))
                     # Convert to local coordinates (simplified)
                     x = (lon - self.min_lon) * 111000  # Approximate meters
