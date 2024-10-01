@@ -26,6 +26,8 @@ class OSMCartographyNode(Node):
         self.load_osm_file()
         self.publish_osm_data()
 
+        self.set_robot_position()
+        self.publish_robot_transform()
         # Timer to periodically publish markers
         #self.timer = self.create_timer(1.0, self.publish_osm_data)
 
@@ -130,7 +132,26 @@ class OSMCartographyNode(Node):
         color.a = 1.0
         return color
 
+    def set_robot_position(self):
+        self.robot_x = 0.0
+        self.robot_y = 0.0 #for test
 
+    def publish_robot_transform(self):
+        t = TransformStamped()
+        t.header.stamp = self.get_clock().now().to_msg()
+        t.header.frame_id = 'map'
+        t.child_frame_id = 'base_link'
+        t.transform.translation.x = self.robot_x
+        t.transform.translation.y = self.robot_y
+        t.transform.translation.z = 0.0
+
+        # Convert Euler angle to quaternion (simplified, assuming only yaw)
+        t.transform.rotation.x = 0.0
+        t.transform.rotation.y = 0.0
+        # t.transform.rotation.z = math.sin(self.robot_yaw / 2)
+        # t.transform.rotation.w = math.cos(self.robot_yaw / 2)
+
+        self.tf_broadcaster.sendTransform(t)
 def main(args=None):
     rclpy.init(args=args)
     node = OSMCartographyNode()
