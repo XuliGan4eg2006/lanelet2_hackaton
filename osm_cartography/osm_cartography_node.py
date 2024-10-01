@@ -52,9 +52,6 @@ class OSMCartographyNode(Node):
 
     def calculate_bounds(self):
         nodes = self.root.findall('.//node')
-        for node in nodes:
-
-            print(node.get("id") ,"---",node.find('.//tag[@k="local_x"]').attrib['v'])
 
         # Calculate bounds
         if nodes:
@@ -95,8 +92,8 @@ class OSMCartographyNode(Node):
             for ref in node_refs:
                 node = self.root.find(f".//node[@id='{ref}']")
                 if node is not None:
-                    lat = float(node.get('lat')) #!!!TODO!!!
-                    lon = float(node.get('lon'))
+                    lat = float(node.find('.//tag[@k="local_x"]').attrib['v'])
+                    lon = float(node.find('.//tag[@k="local_y"]').attrib['v'])
                     # Convert to local coordinates (simplified)
                     x = (lon - self.min_lon) * 111000  # Approximate meters
                     y = (lat - self.min_lat) * 111000
