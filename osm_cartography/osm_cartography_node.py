@@ -28,9 +28,9 @@ class OSMCartographyNode(Node):
         self.publish_osm_data()
 
         self.set_robot_position()
-        self.publish_robot_transform()
+
         # Timer to periodically publish markers
-        #self.timer = self.create_timer(1.0, self.publish_osm_data)
+        self.timer = self.create_timer(1.0, self.publish_robot_transform)
 
     def load_osm_file(self):
         try:
@@ -153,6 +153,7 @@ class OSMCartographyNode(Node):
         # t.transform.rotation.w = math.cos(self.robot_yaw / 2)
 
         self.tf_broadcaster.sendTransform(t)
+        self.get_logger().info('Published robot transform')
 def main(args=None):
     rclpy.init(args=args)
     node = OSMCartographyNode()
