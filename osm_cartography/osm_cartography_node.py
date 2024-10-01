@@ -104,7 +104,8 @@ class OSMCartographyNode(Node):
             if points:  # Only add marker if it has points
                 marker_array.markers.append(marker)
                 marker_id += 1
-        self.get_logger().info(marker_array.markers)
+        self.get_logger().info(str(marker_array.markers))
+        exit()
         self.marker_pub.publish(marker_array)
         self.get_logger().info(f'Published {len(marker_array.markers)} markers')
     def determine_way_type(self, way):
