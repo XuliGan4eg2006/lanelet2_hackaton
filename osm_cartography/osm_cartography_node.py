@@ -55,8 +55,8 @@ class OSMCartographyNode(Node):
 
         # Calculate bounds
         if nodes:
-            lats = [float(node.find('.//tag[@k="local_x"]').attrib['v']) for node in nodes]
-            lons = [float(node.find('.//tag[@k="local_y"]').attrib['v']) for node in nodes]
+            lats = [float(node.find('tag[@k="local_x"]').attrib['v']) for node in nodes]
+            lons = [float(node.find('[@k="local_y"]').attrib['v']) for node in nodes]
             self.min_lat = min(lats)
             self.max_lat = max(lats)
             self.min_lon = min(lons)
@@ -85,7 +85,6 @@ class OSMCartographyNode(Node):
             # Determine way type and set color
             way_type = self.determine_way_type(way)
             marker.color = self.get_color_for_way_type(way_type)
-            marker.color.a = 1.0
 
             points = []
             node_refs = [nd.get('ref') for nd in way.findall('nd')]
@@ -100,7 +99,7 @@ class OSMCartographyNode(Node):
                         y = float(y_tag.attrib['v'])
                         points.append(Point(x=x, y=y, z=0.0))
                         self.get_logger().info(f'Added point: {x}, {y}')
-
+            points.append(Point(x=0.0, y=0.0, z=0.0))
             marker.points = points
 
             if points:  # Only add marker if it has points
