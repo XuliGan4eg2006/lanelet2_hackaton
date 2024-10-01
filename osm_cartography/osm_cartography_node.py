@@ -72,42 +72,67 @@ class OSMCartographyNode(Node):
         marker_array = MarkerArray()
         marker_id = 0
 
+        # Create a dictionary of nodes for faster lookup
+        nodes = {}
+        for node in self.root.findall('node'):
+            node_id = node.get('id')
+            try:
+                x = float(node.get('x', '0'))
+                y = float(node.get('y', '0'))
+                nodes[node_id] = (x, y)
+            except ValueError:
+                # If x/y attributes don't exist or can't be converted, try tags
+                x_tag = node.find("tag[@k='local_x']")
+                y_tag = node.find("tag[@k='local_y']")
+                if x_tag is not None and y_tag is not None:
+                    try:
+                        x = float(x_tag.get('v', '0'))
+                        y = float(y_tag.get('v', '0'))
+                        nodes[node_id] = (x, y)
+                    except ValueError:
+                        continue
+
         # Process ways
-        for way in self.root.findall('.//way'):
-            marker = Marker()
-            marker.header.frame_id = 'map'
-            marker.header.stamp = self.get_clock().now().to_msg()
-            marker.id = marker_id
-            marker.type = Marker.LINE_STRIP
-            marker.action = Marker.ADD
-            marker.scale.x = 1.0  # Line width
-            marker.lifetime = self.get_clock().create_timer(100.0).to_msg()
-
-            # Determine way type and set color
-            way_type = self.determine_way_type(way)
-            marker.color = self.get_color_for_way_type(way_type)
-
+        for way in self.root.findall('way'):
             points = []
-            node_refs = [nd.get('ref') for nd in way.findall('nd')]
+            for nd in way.findall('nd'):
+                ref = nd.get('ref')
+                if ref in nodes:
+                    x, y = nodes[ref]
+                    point = Point()
+                    point.x = x
+                    point.y = y
+                    point.z = 0.0
+                    points.append(point)
 
-            for ref in node_refs:
-                node = self.root.find(f".//node[@id='{ref}']")
-                if node is not None:
-                    x_tag = node.find('.//tag[@k="local_x"]')
-                    y_tag = node.find('.//tag[@k="local_y"]')
-                    if x_tag is not None and y_tag is not None:
-                        x = float(x_tag.attrib['v'])
-                        y = float(y_tag.attrib['v'])
-                        points.append(Point(x=x, y=y, z=0.0))
-                        self.get_logger().info(f'Added point: {x}, {y}')
+            if points:  # Only create marker if we have points
+                marker = Marker()
+                marker.header.frame_id = 'map'
+                marker.header.stamp = self.get_clock().now().to_msg()
+                marker.id = marker_id
+                marker.type = Marker.LINE_STRIP
+                marker.action = Marker.ADD
 
-            marker.points = points
-            if points:  # Only add marker if it has points
+                # Set marker scale
+                marker.scale.x = 1.0  # Line width
+                marker.scale.y = 0.1
+                marker.scale.z = 0.1
+
+                # Set color based on way type
+                way_type = self.determine_way_type(way)
+                marker.color = self.get_color_for_way_type(way_type)
+                marker.color.a = 1.0  # Make sure alpha is set
+
+                marker.points = points
                 marker_array.markers.append(marker)
                 marker_id += 1
 
-        self.marker_pub.publish(marker_array)
-        self.get_logger().info(f'Published {len(marker_array.markers)} markers')
+        if marker_array.markers:
+            self.marker_pub.publish(marker_array)
+            self.get_logger().info(f'Published {len(marker_array.markers)} markers')
+        else:
+            self.get_logger().warn('No markers created - check if coordinates exist in OSM data')
+
     def determine_way_type(self, way):
         return "thin_way"
         # for tag in way.findall('tag'):
