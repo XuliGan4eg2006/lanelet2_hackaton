@@ -92,13 +92,13 @@ class OSMCartographyNode(Node):
             for ref in node_refs:
                 node = self.root.find(f".//node[@id='{ref}']")
                 if node is not None:
-                    x = float(node.find('.//tag[@k="local_x"]').attrib['v'])
-                    y = float(node.find('.//tag[@k="local_y"]').attrib['v'])
-                    # Convert to local coordinates (simplified)
-                    # x = (lon - self.min_lon) * 111000  # Approximate meters
-                    # y = (lat - self.min_lat) * 111000
-                    points.append(Point(x=x, y=y, z=0.0))
-                    self.get_logger().info(f'Added point: {x}, {y}')
+                    x_tag = node.find('.//tag[@k="local_x"]')
+                    y_tag = node.find('.//tag[@k="local_y"]')
+                    if x_tag is not None and y_tag is not None:
+                        x = float(x_tag.attrib['v'])
+                        y = float(y_tag.attrib['v'])
+                        points.append(Point(x=x, y=y, z=0.0))
+                        self.get_logger().info(f'Added point: {x}, {y}')
 
             marker.points = points
             if points:  # Only add marker if it has points
@@ -106,7 +106,6 @@ class OSMCartographyNode(Node):
                 marker_id += 1
         self.marker_pub.publish(marker_array)
         self.get_logger().info(f'Published {len(marker_array.markers)} markers')
-
     def determine_way_type(self, way):
         return "thin_way"
         # for tag in way.findall('tag'):
