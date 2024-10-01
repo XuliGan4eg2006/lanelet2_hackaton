@@ -639,7 +639,7 @@
     <nd ref="8"/>
     <nd ref="9"/>
     <nd ref="168"/>
-    <tag k="type" v="linethin"/>
+    <tag k="type" v="line_thin"/>
     <tag k="subtype" v="solid"/>
   </way>
   <way id="13">

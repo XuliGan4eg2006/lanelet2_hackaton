@@ -2,8 +2,11 @@ README.md
 package.xml
 setup.cfg
 setup.py
-config/osm_viz.rviz
+config/config.rviz
+launch/osm_cartography.launch.py
+maps/map.osm
 osm_cartography/__init__.py
+osm_cartography/osm_cartography_node.py
 osm_cartography.egg-info/PKG-INFO
 osm_cartography.egg-info/SOURCES.txt
 osm_cartography.egg-info/dependency_links.txt
@@ -15,3 +18,4 @@ resource/osm_cartography
 test/test_copyright.py
 test/test_flake8.py
 test/test_pep257.py
+urdf/robot.urdf

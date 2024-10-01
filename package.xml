@@ -4,7 +4,7 @@
   <name>osm_cartography</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="denis@todo.todo">denis</maintainer>
+  <maintainer email="circle-of-winds@yandex.ru">Dmitry</maintainer>
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
