@@ -47,6 +47,6 @@ def generate_launch_description():
             package='rviz2',
             executable='rviz2',
             name='rviz2',
-            arguments=['-d', os.path.join(pkg_share, 'config', 'osm_viz.rviz')]
+            arguments=['-d', os.path.join(pkg_share, 'config', 'config.rviz')]
         )
     ])
