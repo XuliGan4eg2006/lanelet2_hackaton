@@ -44,14 +44,7 @@ class OSMCartographyNode(Node):
 
             # Find bounds in the OSM file
             bounds = self.root.find('.//bounds')
-            if bounds is not None:
-                self.min_lat = float(bounds.get('minlat'))
-                self.max_lat = float(bounds.get('maxlat'))
-                self.min_lon = float(bounds.get('minlon'))
-                self.max_lon = float(bounds.get('maxlon'))
-            else:
-                # If bounds are not in the file, calculate from nodes
-                self.calculate_bounds()
+            self.calculate_bounds()
 
         except Exception as e:
             self.get_logger().error(f'Failed to load OSM file: {str(e)}')
@@ -59,16 +52,19 @@ class OSMCartographyNode(Node):
 
     def calculate_bounds(self):
         nodes = self.root.findall('.//node')
-        if nodes:
-            lats = [float(node.get('lat')) for node in nodes]
-            lons = [float(node.get('lon')) for node in nodes]
-            self.min_lat = min(lats)
-            self.max_lat = max(lats)
-            self.min_lon = min(lons)
-            self.max_lon = max(lons)
-        else:
-            # Default values if no nodes found
-            self.min_lat = self.max_lat = self.min_lon = self.max_lon = 0.0
+        for node in nodes:
+            print(node.find('.//tag[@k="local_x"]').attrib['v'])
+
+        # if nodes:
+        #     lats = [float(node.find('.//tag[@k="local_x"]').attrib['v']) for node in nodes]
+        #     lons = [float(node.find('.//tag[@k="local_y"]').attrib['v']) for node in nodes]
+        #     self.min_lat = min(lats)
+        #     self.max_lat = max(lats)
+        #     self.min_lon = min(lons)
+        #     self.max_lon = max(lons)
+        # else:
+        #     # Default values if no nodes found
+        #     self.min_lat = self.max_lat = self.min_lon = self.max_lon = 0.0
 
     def publish_osm_data(self):
         if self.root is None:
