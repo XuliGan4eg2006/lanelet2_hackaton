@@ -4,10 +4,12 @@ import rclpy
 from rclpy.node import Node
 import xml.etree.ElementTree as ET
 from visualization_msgs.msg import Marker, MarkerArray
-from geometry_msgs.msg import Point
+from geometry_msgs.msg import Point, TransformStamped
 from std_msgs.msg import ColorRGBA
 import os
 from ament_index_python.packages import get_package_share_directory
+import tf2_ros
+import math
 
 
 class OSMCartographyNode(Node):
@@ -22,9 +24,10 @@ class OSMCartographyNode(Node):
 
         # Load OSM data
         self.load_osm_file()
+        self.publish_osm_data()
 
         # Timer to periodically publish markers
-        self.timer = self.create_timer(1.0, self.publish_osm_data)
+        #self.timer = self.create_timer(1.0, self.publish_osm_data)
 
     def load_osm_file(self):
         try:
