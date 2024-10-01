@@ -21,6 +21,7 @@ class OSMCartographyNode(Node):
 
         # Declare parameters
         self.declare_parameter('osm_file', 'map.osm')
+        self.tf_broadcaster = tf2_ros.TransformBroadcaster(self)
 
         # Load OSM data
         self.load_osm_file()
