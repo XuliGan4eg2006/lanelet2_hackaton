@@ -107,19 +107,18 @@ class OSMCartographyNode(Node):
         self.marker_pub.publish(marker_array)
 
     def determine_way_type(self, way):
-        for tag in way.findall('tag'):
-            if tag.get('k') == 'highway':
-                return 'highway'
-            elif tag.get('k') == 'building':
-                return 'building'
-        return 'unknown'
+        return "thin_way"
+        # for tag in way.findall('tag'):
+        #     if tag.get('k') == 'highway':
+        #         return 'highway'
+        #     elif tag.get('k') == 'building':
+        #         return 'building'
+        # return 'unknown'
 
     def get_color_for_way_type(self, way_type):
         color = ColorRGBA()
-        if way_type == 'highway':
+        if way_type == 'thin_way':
             color.r, color.g, color.b = 1.0, 1.0, 0.0  # Yellow for roads
-        elif way_type == 'building':
-            color.r, color.g, color.b = 0.8, 0.0, 0.0  # Red for buildings
         else:
             color.r, color.g, color.b = 0.7, 0.7, 0.7  # Gray for unknown
         color.a = 1.0
