@@ -7,7 +7,7 @@ import math, heapq
 class DijkstraHelper:
 
     def __init__(self, root):
-        self.root = None
+        self.root = root
         self.nodes, self.ways, self.relations = {}, {}, []
         self.graph = {}
 
