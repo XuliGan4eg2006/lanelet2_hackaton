@@ -190,7 +190,7 @@ class OSMCartographyNode(Node):
                 self.get_logger().info('Could not find start or end point')
             else:
                 way = helper.dijkstra(start_point_id, end_point_id)
-                self.get_logger().info('Way: ', way)
+                self.get_logger().info('Way: ' + str(way))
 
             self.point_start_x = 0.0
             self.point_start_y = 0.0
