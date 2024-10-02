@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
+from contextlib import nullcontext
 
 import rclpy
 from rclpy.node import Node
 import xml.etree.ElementTree as ET
 from visualization_msgs.msg import Marker, MarkerArray
-from geometry_msgs.msg import Point, TransformStamped, PointStamped, PoseWithCovarianceStamped, PoseStamped
+from geometry_msgs.msg import Point, TransformStamped, PointStamped
 from std_msgs.msg import ColorRGBA
 import os
 from ament_index_python.packages import get_package_share_directory
@@ -13,7 +14,20 @@ import math
 from osm_cartography.dijkstra_helper import DijkstraHelper
 
 
-#Господа проверяющие, код писался буквально одним человеком и местами тут может быть кринж
+def clamp_magnitude(vector, max_len):
+    sqr_mag = vector[0] * vector[0] + vector[1] * vector[1]
+
+    if sqr_mag > max_len * max_len:
+        mag = math.sqrt(sqr_mag)
+
+        nor_x = vector[0] / mag
+        nor_y = vector[1] / mag
+
+        return [nor_x * max_len, nor_y * max_len]
+    else:
+        return vector
+
+
 class OSMCartographyNode(Node):
     def __init__(self):
         super().__init__('osm_cartography_node')
@@ -31,7 +45,7 @@ class OSMCartographyNode(Node):
 
         self.helper = DijkstraHelper(self.root)
 
-        # Subscriber for Publish Point
+        # Subscriber for clicked points
         self.clicked_point_sub = self.create_subscription(
             PointStamped,
             '/clicked_point',
@@ -39,22 +53,6 @@ class OSMCartographyNode(Node):
             10
         )
 
-        # Subscriber for 2D Pose Estimate
-        self.clicked_2d_point_sub_start = self.create_subscription(
-            PoseWithCovarianceStamped,
-            '/initialpose',
-            self.clicked_2d_start,
-            10
-        )
-
-        # Subscriber for 2D Goal Pose
-        self.clicked_2d_point_sub_end = self.create_subscription(
-            PoseStamped,
-            '/move_base_simple/goal',
-            self.clicked_2d_end
-        )
-
-        # Set initial robot position
         self.robot_x = 40.9428  # spawn point
         self.robot_y = 472.869
 
@@ -66,7 +64,7 @@ class OSMCartographyNode(Node):
 
         self.way = []
         # Timer to periodically publish markers
-        self.timer = self.create_timer(1.0, self.publish_robot_transform)
+        self.timer = self.create_timer(0.02, self.publish_robot_transform)
 
     def load_osm_file(self):
         try:
@@ -153,7 +151,6 @@ class OSMCartographyNode(Node):
         self.get_logger().info(f'Published {len(marker_array.markers)} markers')
 
     def determine_way_type(self, way):
-        # Dead code, not used in this case
         return "thin_way"
         # for tag in way.findall('tag'):
         #     if tag.get('k') == 'highway':
@@ -172,9 +169,12 @@ class OSMCartographyNode(Node):
         return color
 
     def publish_robot_transform(self):
-        if self.way:  # Сhecking if there is way to go
+
+        # checking if there is way to go
+        if self.way:
             # If it is, going by points
-            self.robot_x, self.robot_y = self.helper.get_coords_by_point_id(self.way[0])
+            self.robot_x = self.way[0][0]
+            self.robot_y = self.way[0][1]
             self.way.pop(0)
 
         t = TransformStamped()
@@ -196,6 +196,7 @@ class OSMCartographyNode(Node):
         self.get_logger().info('Published robot transform')
 
     def clicked_point_callback(self, msg: PointStamped):
+        # Log the clicked point
         self.get_logger().info(f'Clicked point: x={msg.point.x}, y={msg.point.y}, z={msg.point.z}')
         if self.point_start_x == 0.0 and self.point_start_y == 0.0:
             self.point_start_x = msg.point.x
@@ -207,7 +208,7 @@ class OSMCartographyNode(Node):
         if self.point_start_x != 0.0 and self.point_start_y != 0.0 and self.point_end_x != 0.0 and self.point_end_y != 0.0:
             self.get_logger().info('Got 2 points \nStart point: ' + str(self.point_start_x) + ' ' + str(
                 self.point_start_y) + '\nEnd point: ' + str(self.point_end_x) + ' ' + str(self.point_end_y))
-            #runnung algorithm
+            # runnung algorithm
 
             start_point_id = self.helper.get_point_id((self.point_start_x, self.point_start_y))
             end_point_id = self.helper.get_point_id((self.point_end_x, self.point_end_y))
@@ -217,7 +218,32 @@ class OSMCartographyNode(Node):
             else:
                 way = self.helper.dijkstra(start_point_id, end_point_id)
                 if way:  # may be no wAaAaAaAy
-                    self.way = way[1]
+                    points = way[1]
+                    path = []
+
+                    for index, point in enumerate(points):
+                        pos_x, pos_y = self.helper.get_coords_by_point_id(point)
+                        if index > 0:
+                            old_x, old_y = self.helper.get_coords_by_point_id(points[index - 1])
+                            diff_x = math.fabs(pos_x - old_x)
+                            diff_y = math.fabs(pos_y - old_y)
+
+                            distance = math.fabs(diff_x + diff_y)
+                            if diff_x == 0 or diff_y == 0:
+                                distance = math.sqrt(diff_x * diff_x + diff_y * diff_y)
+
+                            if distance > 0.5:
+                                for iter in range(0, math.ceil(distance / 0.5)):
+                                    diff = [pos_x - old_x, pos_y - old_y]
+                                    mag = clamp_magnitude(diff, (iter + 1) * 0.5)
+                                    path.append([old_x + mag[0], old_y + mag[1]])
+                            else:
+                                path.append([pos_x, pos_y])
+
+                        else:
+                            path.append([pos_x, pos_y])
+
+                    self.way = path
 
                 self.get_logger().info('Way: ' + str(way))
 
@@ -225,14 +251,6 @@ class OSMCartographyNode(Node):
             self.point_start_y = 0.0
             self.point_end_x = 0.0
             self.point_end_y = 0.0
-
-    def clicked_2d_start(self, msg: PoseWithCovarianceStamped):
-
-        self.get_logger().info('Start point clicked: ' + str(msg.pose.pose.position.x))
-
-    def clicked_2d_end(self, msg: PoseStamped):
-
-        self.get_logger().info('End point clicked: ' + str(msg.pose.pose.position.x))
 
 
 def main(args=None):
