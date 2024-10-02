@@ -63,7 +63,6 @@ class OSMCartographyNode(Node):
         self.robot_x = 40.9428  # spawn point
         self.robot_y = 472.869
 
-        self.freeze_start = False
         self.point_start_x = 0.0
         self.point_start_y = 0.0
 
@@ -254,9 +253,8 @@ class OSMCartographyNode(Node):
 
                 self.get_logger().info('Way: ' + str(way))
 
-            if self.freeze_start:
-                self.point_start_x = 0.0
-                self.point_start_y = 0.0
+            self.point_start_x = 0.0
+            self.point_start_y = 0.0
 
             self.point_end_x = 0.0
             self.point_end_y = 0.0
@@ -264,7 +262,6 @@ class OSMCartographyNode(Node):
     def clicked_2d_start(self, msg: PoseWithCovarianceStamped):
 
         self.get_logger().info('Start point clicked: ' + str(msg.pose.pose.position.x))
-        self.freeze_start = True
         self.point_start_x = msg.pose.pose.position.x
         self.point_start_y = msg.pose.pose.position.y
 
