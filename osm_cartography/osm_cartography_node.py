@@ -1,4 +1,4 @@
-    #!/usr/bin/env python3
+#!/usr/bin/env python3
 
 import rclpy
 from rclpy.node import Node
@@ -10,6 +10,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 import tf2_ros
 import math
+from dijkstra_helper import DijkstraHelper
 
 
 class OSMCartographyNode(Node):
@@ -35,7 +36,14 @@ class OSMCartographyNode(Node):
             10
         )
 
-        self.set_robot_position()
+        self.robot_x = 40.9428 # spawn point
+        self.robot_y = 472.869
+
+        self.point_start_x = 0.0
+        self.point_start_y = 0.0
+
+        self.point_end_x = 0.0
+        self.point_end_y = 0.0
 
         # Timer to periodically publish markers
         self.timer = self.create_timer(1.0, self.publish_robot_transform)
@@ -141,10 +149,6 @@ class OSMCartographyNode(Node):
         color.a = 1.0
         return color
 
-    def set_robot_position(self):
-        self.robot_x = 40.9428
-        self.robot_y = 472.869 #for test
-
     def publish_robot_transform(self):
         t = TransformStamped()
         t.header.stamp = self.get_clock().now().to_msg()
@@ -167,8 +171,22 @@ class OSMCartographyNode(Node):
     def clicked_point_callback(self, msg: PointStamped):
         # Log the clicked point
         self.get_logger().info(f'Clicked point: x={msg.point.x}, y={msg.point.y}, z={msg.point.z}')
-        self.robot_x = msg.point.x
-        self.robot_y = msg.point.y
+        if self.point_start_x == 0.0 and self.point_start_y == 0.0:
+            self.point_start_x = msg.point.x
+            self.point_start_y = msg.point.y
+        elif self.point_start_x != 0.0 and self.point_start_y != 0.0:
+            self.point_end_x = msg.point.x
+            self.point_end_y = msg.point.y
+        else:
+            self.get_logger().info('Got 2 points \nStart point: ' + str(self.point_start_x) + ' ' + str(self.point_start_y) + '\nEnd point: ' + str(self.point_end_x) + ' ' + str(self.point_end_y))
+            #runnung algorithm
+            helper = DijkstraHelper(self.root)
+
+            self.get_logger().info(helper.get_point_id((msg.point.x, msg.point.y)))
+            #helper.dijkstra((self.point_start_x, self.point_start_y), (self.point_end_x, self.point_end_y))
+
+            self.point_start_x = 0.0
+            self.point_start_y = 0.0
 
 def main(args=None):
     rclpy.init(args=args)
