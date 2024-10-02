@@ -51,8 +51,7 @@ class OSMCartographyNode(Node):
         self.clicked_2d_point_sub_end = self.create_subscription(
             PoseStamped,
             '/move_base_simple/goal',
-            self.clicked_2d_end,
-            10
+            self.clicked_2d_end
         )
 
         # Set initial robot position
