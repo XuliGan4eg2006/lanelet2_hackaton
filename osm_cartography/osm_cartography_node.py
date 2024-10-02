@@ -155,7 +155,7 @@ class OSMCartographyNode(Node):
                 marker_id += 1
 
         self.marker_pub.publish(marker_array)
-        #self.get_logger().info(f'Published {len(marker_array.markers)} markers')
+        self.get_logger().info(f'Published {len(marker_array.markers)} markers')
 
     def determine_way_type(self, way):
         return "thin_way"
@@ -199,7 +199,7 @@ class OSMCartographyNode(Node):
         # t.transform.rotation.w = math.cos(self.robot_yaw / 2)
 
         self.tf_broadcaster.sendTransform(t)
-        self.get_logger().info('Published robot transform')
+        #self.get_logger().info('Published robot transform')
 
     def clicked_point_callback(self, msg: PointStamped):
         # Log the clicked point
