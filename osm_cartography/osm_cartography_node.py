@@ -155,7 +155,7 @@ class OSMCartographyNode(Node):
                 marker_id += 1
 
         self.marker_pub.publish(marker_array)
-        self.get_logger().info(f'Published {len(marker_array.markers)} markers')
+        #self.get_logger().info(f'Published {len(marker_array.markers)} markers')
 
     def determine_way_type(self, way):
         return "thin_way"
