@@ -10,7 +10,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 import tf2_ros
 import math
-from dijkstra_helper import DijkstraHelper
+from osm_cartography.dijkstra_helper import DijkstraHelper
 
 
 class OSMCartographyNode(Node):
