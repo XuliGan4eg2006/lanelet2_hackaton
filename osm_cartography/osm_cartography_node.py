@@ -40,7 +40,7 @@ class OSMCartographyNode(Node):
         )
 
         self.clicked_2d_point_sub = self.create_subscription(
-            PointStamped,
+            PoseWithCovarianceStamped,
             '/initialpose',
             self.clicked_2d_start,
             10
