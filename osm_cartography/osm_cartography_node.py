@@ -5,7 +5,7 @@ import rclpy
 from rclpy.node import Node
 import xml.etree.ElementTree as ET
 from visualization_msgs.msg import Marker, MarkerArray
-from geometry_msgs.msg import Point, TransformStamped, PointStamped
+from geometry_msgs.msg import Point, TransformStamped, PointStamped, PoseWithCovarianceStamped, PoseStamped
 from std_msgs.msg import ColorRGBA
 import os
 from ament_index_python.packages import get_package_share_directory
@@ -51,6 +51,20 @@ class OSMCartographyNode(Node):
             '/clicked_point',
             self.clicked_point_callback,
             10
+        )
+        # Subscriber for 2D Pose Estimate
+        self.clicked_2d_point_sub_start = self.create_subscription(
+            PoseWithCovarianceStamped,
+            '/initialpose',
+            self.clicked_2d_start,
+            10
+        )
+
+        # Subscriber for 2D Goal Pose
+        self.clicked_2d_point_sub_end = self.create_subscription(
+            PoseStamped,
+            '/move_base_simple/goal',
+            self.clicked_2d_end
         )
 
         self.robot_x = 40.9428  # spawn point
@@ -173,8 +187,7 @@ class OSMCartographyNode(Node):
         # checking if there is way to go
         if self.way:
             # If it is, going by points
-            self.robot_x = self.way[0][0]
-            self.robot_y = self.way[0][1]
+            self.robot_x, self.robot_y = self.way[0]
             self.way.pop(0)
 
         t = TransformStamped()
@@ -251,6 +264,14 @@ class OSMCartographyNode(Node):
             self.point_start_y = 0.0
             self.point_end_x = 0.0
             self.point_end_y = 0.0
+
+    def clicked_2d_start(self, msg: PoseWithCovarianceStamped):
+
+        self.get_logger().info('Start point clicked: ' + str(msg.pose.pose.position.x))
+
+    def clicked_2d_end(self, msg: PoseStamped):
+
+        self.get_logger().info('End point clicked: ' + str(msg.pose.pose.position.x))
 
 
 def main(args=None):
