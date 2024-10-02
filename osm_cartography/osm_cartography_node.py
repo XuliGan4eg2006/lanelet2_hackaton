@@ -183,7 +183,7 @@ class OSMCartographyNode(Node):
             #runnung algorithm
             helper = DijkstraHelper(self.root)
 
-            self.get_logger().info(helper.get_point_id((msg.point.x, msg.point.y)))
+            self.get_logger().info(str(helper.get_point_id((msg.point.x, msg.point.y))))
             #helper.dijkstra((self.point_start_x, self.point_start_y), (self.point_end_x, self.point_end_y))
 
             self.point_start_x = 0.0
