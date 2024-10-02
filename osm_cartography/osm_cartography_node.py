@@ -60,14 +60,6 @@ class OSMCartographyNode(Node):
             10
         )
 
-        # Subscriber for 2D Goal Pose
-        self.clicked_2d_point_sub_end = self.create_subscription(
-            PoseStamped,
-            '/move_base_simple/goal',
-            self.clicked_2d_end,
-            10
-        )
-
         self.robot_x = 40.9428  # spawn point
         self.robot_y = 472.869
 
@@ -269,11 +261,8 @@ class OSMCartographyNode(Node):
     def clicked_2d_start(self, msg: PoseWithCovarianceStamped):
 
         self.get_logger().info('Start point clicked: ' + str(msg.pose.pose.position.x))
-
-    def clicked_2d_end(self, msg: PoseStamped):
-
-        self.get_logger().info('End point clicked: ' + str(msg.pose.pose.position.x))
-
+        self.point_start_x = msg.pose.pose.position.x
+        self.point_start_y = msg.pose.pose.position.y
 
 def main(args=None):
     rclpy.init(args=args)
