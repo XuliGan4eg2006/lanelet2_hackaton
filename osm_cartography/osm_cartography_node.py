@@ -167,7 +167,8 @@ class OSMCartographyNode(Node):
     def clicked_point_callback(self, msg: PointStamped):
         # Log the clicked point
         self.get_logger().info(f'Clicked point: x={msg.point.x}, y={msg.point.y}, z={msg.point.z}')
-
+        self.robot_x = msg.point.x
+        self.robot_y = msg.point.y
 
 def main(args=None):
     rclpy.init(args=args)
