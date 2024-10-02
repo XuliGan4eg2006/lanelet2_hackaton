@@ -171,7 +171,6 @@ class OSMCartographyNode(Node):
     def clicked_point_callback(self, msg: PointStamped):
         # Log the clicked point
         self.get_logger().info(f'Clicked point: x={msg.point.x}, y={msg.point.y}, z={msg.point.z}')
-        self.get_logger().info(f'Points data: start_x={self.point_start_x}, start_y={self.point_start_y}, end_x={self.point_end_x}, end_y={self.point_end_y}')
         if self.point_start_x == 0.0 and self.point_start_y == 0.0:
             self.point_start_x = msg.point.x
             self.point_start_y = msg.point.y
@@ -190,6 +189,9 @@ class OSMCartographyNode(Node):
             self.point_start_y = 0.0
             self.point_end_x = 0.0
             self.point_end_y = 0.0
+        self.get_logger().info(
+            f'Points data: start_x={self.point_start_x}, start_y={self.point_start_y}, end_x={self.point_end_x}, end_y={self.point_end_y}')
+
 
 def main(args=None):
     rclpy.init(args=args)
