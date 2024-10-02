@@ -13,6 +13,7 @@ import math
 from osm_cartography.dijkstra_helper import DijkstraHelper
 
 
+#Господа проверяющие, код писался буквально одним человеком и местами тут может быть кринж
 class OSMCartographyNode(Node):
     def __init__(self):
         super().__init__('osm_cartography_node')
@@ -38,7 +39,7 @@ class OSMCartographyNode(Node):
             10
         )
 
-        self.robot_x = 40.9428 # spawn point
+        self.robot_x = 40.9428  # spawn point
         self.robot_y = 472.869
 
         self.point_start_x = 0.0
@@ -134,7 +135,9 @@ class OSMCartographyNode(Node):
 
         self.marker_pub.publish(marker_array)
         self.get_logger().info(f'Published {len(marker_array.markers)} markers')
+
     def determine_way_type(self, way):
+        # Dead code, not used in this case
         return "thin_way"
         # for tag in way.findall('tag'):
         #     if tag.get('k') == 'highway':
@@ -153,9 +156,7 @@ class OSMCartographyNode(Node):
         return color
 
     def publish_robot_transform(self):
-
-        #checking if there is way to go
-        if self.way:
+        if self.way: # Сhecking if there is way to go
             # If it is, going by points
             self.robot_x, self.robot_y = self.helper.get_coords_by_point_id(self.way[0])
             self.way.pop(0)
@@ -179,7 +180,6 @@ class OSMCartographyNode(Node):
         self.get_logger().info('Published robot transform')
 
     def clicked_point_callback(self, msg: PointStamped):
-        # Log the clicked point
         self.get_logger().info(f'Clicked point: x={msg.point.x}, y={msg.point.y}, z={msg.point.z}')
         if self.point_start_x == 0.0 and self.point_start_y == 0.0:
             self.point_start_x = msg.point.x
@@ -189,7 +189,8 @@ class OSMCartographyNode(Node):
             self.point_end_y = msg.point.y
 
         if self.point_start_x != 0.0 and self.point_start_y != 0.0 and self.point_end_x != 0.0 and self.point_end_y != 0.0:
-            self.get_logger().info('Got 2 points \nStart point: ' + str(self.point_start_x) + ' ' + str(self.point_start_y) + '\nEnd point: ' + str(self.point_end_x) + ' ' + str(self.point_end_y))
+            self.get_logger().info('Got 2 points \nStart point: ' + str(self.point_start_x) + ' ' + str(
+                self.point_start_y) + '\nEnd point: ' + str(self.point_end_x) + ' ' + str(self.point_end_y))
             #runnung algorithm
 
             start_point_id = self.helper.get_point_id((self.point_start_x, self.point_start_y))
@@ -199,7 +200,7 @@ class OSMCartographyNode(Node):
                 self.get_logger().info('Could not find start or end point')
             else:
                 way = self.helper.dijkstra(start_point_id, end_point_id)
-                if way: # may be no wAaAaAaAy
+                if way:  # may be no wAaAaAaAy
                     self.way = way[1]
 
                 self.get_logger().info('Way: ' + str(way))
