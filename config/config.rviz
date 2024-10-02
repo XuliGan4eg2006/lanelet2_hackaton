@@ -77,7 +77,7 @@ Visualization Manager:
           Value: true
         map:
           Value: true
-      Marker Scale: 1
+      Marker Scale: 10
       Name: TF
       Show Arrows: true
       Show Axes: true
