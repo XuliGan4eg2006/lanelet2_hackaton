@@ -4,7 +4,7 @@ import rclpy
 from rclpy.node import Node
 import xml.etree.ElementTree as ET
 from visualization_msgs.msg import Marker, MarkerArray
-from geometry_msgs.msg import Point, TransformStamped, PointStamped
+from geometry_msgs.msg import Point, TransformStamped, PointStamped, PoseWithCovarianceStamped, PoseStamped
 from std_msgs.msg import ColorRGBA
 import os
 from ament_index_python.packages import get_package_share_directory
@@ -39,6 +39,14 @@ class OSMCartographyNode(Node):
             10
         )
 
+        self.clicked_2d_point_sub = self.create_subscription(
+            PointStamped,
+            '/initialpose',
+            self.clicked_2d_start,
+            10
+        )
+
+        # Set initial robot position
         self.robot_x = 40.9428  # spawn point
         self.robot_y = 472.869
 
@@ -156,7 +164,7 @@ class OSMCartographyNode(Node):
         return color
 
     def publish_robot_transform(self):
-        if self.way: # Сhecking if there is way to go
+        if self.way:  # Сhecking if there is way to go
             # If it is, going by points
             self.robot_x, self.robot_y = self.helper.get_coords_by_point_id(self.way[0])
             self.way.pop(0)
@@ -209,6 +217,9 @@ class OSMCartographyNode(Node):
             self.point_start_y = 0.0
             self.point_end_x = 0.0
             self.point_end_y = 0.0
+
+    def clicked_2d_start(self):
+        print('Start point clicked: ' + str(self))
 
 
 def main(args=None):
