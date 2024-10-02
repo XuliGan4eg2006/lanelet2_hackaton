@@ -177,7 +177,8 @@ class OSMCartographyNode(Node):
         elif self.point_end_x == 0.0 and self.point_end_y == 0.0:
             self.point_end_x = msg.point.x
             self.point_end_y = msg.point.y
-        else:
+
+        if self.point_start_x != 0.0 and self.point_start_y != 0.0 and self.point_end_x != 0.0 and self.point_end_y != 0.0:
             self.get_logger().info('Got 2 points \nStart point: ' + str(self.point_start_x) + ' ' + str(self.point_start_y) + '\nEnd point: ' + str(self.point_end_x) + ' ' + str(self.point_end_y))
             #runnung algorithm
             helper = DijkstraHelper(self.root)
@@ -189,8 +190,6 @@ class OSMCartographyNode(Node):
             self.point_start_y = 0.0
             self.point_end_x = 0.0
             self.point_end_y = 0.0
-        self.get_logger().info(
-            f'Points data: start_x={self.point_start_x}, start_y={self.point_start_y}, end_x={self.point_end_x}, end_y={self.point_end_y}')
 
 
 def main(args=None):
