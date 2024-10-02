@@ -219,7 +219,7 @@ class OSMCartographyNode(Node):
             self.point_end_y = 0.0
 
     def clicked_2d_start(self):
-        print('Start point clicked: ' + str(self))
+        self.get_logger().info('Start point clicked: ' + str(self))
 
 
 def main(args=None):
