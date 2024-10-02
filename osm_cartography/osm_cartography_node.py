@@ -4,7 +4,7 @@ import rclpy
 from rclpy.node import Node
 import xml.etree.ElementTree as ET
 from visualization_msgs.msg import Marker, MarkerArray
-from geometry_msgs.msg import Point, TransformStamped
+from geometry_msgs.msg import Point, TransformStamped, PointStamped
 from std_msgs.msg import ColorRGBA
 import os
 from ament_index_python.packages import get_package_share_directory
@@ -26,6 +26,14 @@ class OSMCartographyNode(Node):
         # Load OSM data
         self.load_osm_file()
         self.publish_osm_data()
+
+        # Subscriber for clicked points
+        self.clicked_point_sub = self.create_subscription(
+            PointStamped,
+            '/clicked_point',
+            self.clicked_point_callback,
+            10
+        )
 
         self.set_robot_position()
 
@@ -142,6 +150,7 @@ class OSMCartographyNode(Node):
         t.header.stamp = self.get_clock().now().to_msg()
         t.header.frame_id = 'map'
         t.child_frame_id = 'base_link'
+
         t.transform.translation.x = self.robot_x
         t.transform.translation.y = self.robot_y
         t.transform.translation.z = 0.0
@@ -154,6 +163,12 @@ class OSMCartographyNode(Node):
 
         self.tf_broadcaster.sendTransform(t)
         self.get_logger().info('Published robot transform')
+
+    def clicked_point_callback(self, msg: PointStamped):
+        # Log the clicked point
+        self.get_logger().info(f'Clicked point: x={msg.point.x}, y={msg.point.y}, z={msg.point.z}')
+
+
 def main(args=None):
     rclpy.init(args=args)
     node = OSMCartographyNode()
