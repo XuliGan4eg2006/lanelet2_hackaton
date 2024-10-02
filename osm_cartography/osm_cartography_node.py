@@ -183,8 +183,14 @@ class OSMCartographyNode(Node):
             #runnung algorithm
             helper = DijkstraHelper(self.root)
 
-            self.get_logger().info(str(helper.get_point_id((msg.point.x, msg.point.y))))
-            #helper.dijkstra((self.point_start_x, self.point_start_y), (self.point_end_x, self.point_end_y))
+            start_point_id = helper.get_point_id((self.point_start_x, self.point_start_y))
+            end_point_id = helper.get_point_id((self.point_end_x, self.point_end_y))
+            self.get_logger().info('Start point id: ' + str(start_point_id) + ' End point id: ' + str(end_point_id))
+            if not start_point_id and not end_point_id:
+                self.get_logger().info('Could not find start or end point')
+            else:
+                way = helper.dijkstra(start_point_id, end_point_id)
+                self.get_logger().info('Way: ', way)
 
             self.point_start_x = 0.0
             self.point_start_y = 0.0
