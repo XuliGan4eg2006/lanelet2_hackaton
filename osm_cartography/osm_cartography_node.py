@@ -218,8 +218,8 @@ class OSMCartographyNode(Node):
             self.point_end_x = 0.0
             self.point_end_y = 0.0
 
-    def clicked_2d_start(self):
-        self.get_logger().info('Start point clicked: ' + str(self))
+    def clicked_2d_start(self, msg: PoseWithCovarianceStamped):
+        self.get_logger().info('Start point clicked: ' + str(msg))
 
 
 def main(args=None):
