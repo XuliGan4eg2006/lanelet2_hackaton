@@ -31,7 +31,7 @@ class OSMCartographyNode(Node):
 
         self.helper = DijkstraHelper(self.root)
 
-        # Subscriber for clicked points
+        # Subscriber for Publish Point
         self.clicked_point_sub = self.create_subscription(
             PointStamped,
             '/clicked_point',
@@ -39,10 +39,19 @@ class OSMCartographyNode(Node):
             10
         )
 
-        self.clicked_2d_point_sub = self.create_subscription(
+        # Subscriber for 2D Pose Estimate
+        self.clicked_2d_point_sub_start = self.create_subscription(
             PoseWithCovarianceStamped,
             '/initialpose',
             self.clicked_2d_start,
+            10
+        )
+
+        # Subscriber for 2D Goal Pose
+        self.clicked_2d_point_sub_end = self.create_subscription(
+            PoseStamped,
+            '/move_base_simple/goal',
+            self.clicked_2d_end,
             10
         )
 
@@ -219,7 +228,12 @@ class OSMCartographyNode(Node):
             self.point_end_y = 0.0
 
     def clicked_2d_start(self, msg: PoseWithCovarianceStamped):
+
         self.get_logger().info('Start point clicked: ' + str(msg.pose.pose.position.x))
+
+    def clicked_2d_end(self, msg: PoseStamped):
+
+        self.get_logger().info('End point clicked: ' + str(msg.pose.pose.position.x))
 
 
 def main(args=None):
