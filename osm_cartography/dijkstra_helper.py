@@ -49,6 +49,9 @@ class DijkstraHelper:
                 nearest_node = node_id
         return nearest_node
 
+    def get_coords_by_point_id(self, point_id):
+        return self.nodes[point_id]
+
     def dijkstra(self, start, end):
         # Инициализация расстояний и предшественников
         distances = {node: math.inf for node in self.graph}

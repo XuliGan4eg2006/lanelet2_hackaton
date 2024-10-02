@@ -28,6 +28,8 @@ class OSMCartographyNode(Node):
         self.load_osm_file()
         self.publish_osm_data()
 
+        self.helper = DijkstraHelper(self.root)
+
         # Subscriber for clicked points
         self.clicked_point_sub = self.create_subscription(
             PointStamped,
@@ -45,6 +47,7 @@ class OSMCartographyNode(Node):
         self.point_end_x = 0.0
         self.point_end_y = 0.0
 
+        self.way = []
         # Timer to periodically publish markers
         self.timer = self.create_timer(1.0, self.publish_robot_transform)
 
@@ -150,6 +153,13 @@ class OSMCartographyNode(Node):
         return color
 
     def publish_robot_transform(self):
+
+        #checking if there is way to go
+        if self.way:
+            # If it is, going by points
+            self.robot_x, self.robot_y = self.helper.get_coords_by_point_id(self.way[0])
+            self.way.pop(0)
+
         t = TransformStamped()
         t.header.stamp = self.get_clock().now().to_msg()
         t.header.frame_id = 'map'
@@ -181,15 +191,17 @@ class OSMCartographyNode(Node):
         if self.point_start_x != 0.0 and self.point_start_y != 0.0 and self.point_end_x != 0.0 and self.point_end_y != 0.0:
             self.get_logger().info('Got 2 points \nStart point: ' + str(self.point_start_x) + ' ' + str(self.point_start_y) + '\nEnd point: ' + str(self.point_end_x) + ' ' + str(self.point_end_y))
             #runnung algorithm
-            helper = DijkstraHelper(self.root)
 
-            start_point_id = helper.get_point_id((self.point_start_x, self.point_start_y))
-            end_point_id = helper.get_point_id((self.point_end_x, self.point_end_y))
+            start_point_id = self.helper.get_point_id((self.point_start_x, self.point_start_y))
+            end_point_id = self.helper.get_point_id((self.point_end_x, self.point_end_y))
             self.get_logger().info('Start point id: ' + str(start_point_id) + ' End point id: ' + str(end_point_id))
             if not start_point_id and not end_point_id:
                 self.get_logger().info('Could not find start or end point')
             else:
-                way = helper.dijkstra(start_point_id, end_point_id)
+                way = self.helper.dijkstra(start_point_id, end_point_id)
+                if way: # may be no wAaAaAaAy
+                    self.way = way[1]
+
                 self.get_logger().info('Way: ' + str(way))
 
             self.point_start_x = 0.0
