@@ -22,15 +22,6 @@ def generate_launch_description():
     return LaunchDescription([
         osm_file_arg,
 
-        # Robot state publisher
-        Node(
-            package='robot_state_publisher',
-            executable='robot_state_publisher',
-            name='robot_state_publisher',
-            output='screen',
-            parameters=[{'robot_description': Command(['xacro ', urdf_file])}],
-        ),
-
         # OSM Cartography node
         Node(
             package='osm_cartography',
