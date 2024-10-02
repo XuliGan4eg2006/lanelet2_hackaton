@@ -174,7 +174,7 @@ class OSMCartographyNode(Node):
         if self.point_start_x == 0.0 and self.point_start_y == 0.0:
             self.point_start_x = msg.point.x
             self.point_start_y = msg.point.y
-        elif self.point_start_x != 0.0 and self.point_start_y != 0.0:
+        elif self.point_end_x == 0.0 and self.point_end_y == 0.0:
             self.point_end_x = msg.point.x
             self.point_end_y = msg.point.y
         else:
@@ -187,6 +187,8 @@ class OSMCartographyNode(Node):
 
             self.point_start_x = 0.0
             self.point_start_y = 0.0
+            self.point_end_x = 0.0
+            self.point_end_y = 0.0
 
 def main(args=None):
     rclpy.init(args=args)
